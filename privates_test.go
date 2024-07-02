@@ -931,6 +931,3 @@ func test_readConfigString_success(t *testing.T, testCase testCaseReadConfigStri
 	require.Nil(t, err)
 	require.Equal(t, testCase.expValue, it[testCase.expName][0].value)
 }
-
-//todo: add test for slices with mix of nil and non-nil values
-//todo: must work in JSON with [nil, 1, nil] and ["*nil", 1, "*nil"]

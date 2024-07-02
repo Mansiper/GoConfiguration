@@ -542,4 +542,3 @@ func (cr *configReader) checkDuplicates(name string, it intermediateTree, source
 }
 
 //todo!: json allows name "{" or "[" and now it can be a problem
-//todo: useparser for all types

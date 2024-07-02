@@ -114,7 +114,7 @@ func Test_parseJsonData_success_cases(t *testing.T) {
 		{" //\n/**/\n{/*w\nw*/\"env_1\"//\n://\n\"value\"//comment\n} /**/ ", "env_1", "value", vtString, false, false, ""},
 		{"{\"env_1\":tRUe}", "env_1", "true", vtBool, false, false, ""},
 		{"{\"env_1\":FALSe}", "env_1", "false", vtBool, false, false, ""},
-		{"{\"env_1\":null}", "env_1", "null", vtNull, false, false, ""},
+		{"{\"env_1\":null}", "env_1", "*nil", vtNull, false, false, ""},
 		{"{\"env_1\":3.14}", "env_1", "3.14", vtNumber, false, false, ""},
 		{"{\"env_1\":-123}", "env_1", "-123", vtNumber, false, false, ""},
 		{"{\"env_1\":[1.1,2.2,]}", "env_1", "1.1,2.2", vtNumber, true, false, ""},
@@ -124,6 +124,11 @@ func Test_parseJsonData_success_cases(t *testing.T) {
 		{"{\"env_1\":\"va\\\"lue\"}", "env_1", "va\"lue", vtString, false, false, ""},
 		{"{\"env_1\":\"va\\\\lue\"}", "env_1", "va\\\\lue", vtString, false, false, ""},
 		{"{\"env_1\":[\"v1\",\"v2\"],}", "env_1", "v1,v2", vtString, true, false, ""},
+		{"{\"env_1\":[1,null,2]}", "env_1", "1,*nil,2", vtNumber, true, false, ""},
+		{"{\"env_1\":[null,1,null]}", "env_1", "*nil,1,*nil", vtNumber, true, false, ""},
+		{"{\"env_1\":[1,\"*nil\",2]}", "env_1", "1,*nil,2", vtNumber, true, false, ""},
+		{"{\"env_1\":[\"*nil\",1,\"*nil\"]}", "env_1", "*nil,1,*nil", vtNumber, true, false, ""},
+		{"{\"env_1\":[\"*nil\",1,null]}", "env_1", "*nil,1,*nil", vtNumber, true, false, ""},
 	}
 
 	// Act & Assert

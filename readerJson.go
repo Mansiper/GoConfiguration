@@ -114,6 +114,9 @@ func (cr *configReader) parseJsonData(r *bufio.Reader, it intermediateTree, si [
 					vType = vtString
 				} else {
 					vType = cr.getJsonValueType(valueResult.value)
+					if vType == vtNull && valueResult.value != nilDefault {
+						valueResult.value = nilDefault
+					}
 				}
 				if foundInfo.isMap {
 					err = cr.addJsonValue(foundInfo, it, data.prefix, valueResult.value, name, vType, sourceId)
