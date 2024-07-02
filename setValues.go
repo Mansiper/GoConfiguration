@@ -2,7 +2,6 @@ package configuration
 
 import (
 	"errors"
-	"log"
 	"reflect"
 	"strconv"
 	"time"
@@ -23,6 +22,22 @@ func (cr *configReader) setFieldValue(info structInfo, str string, strSlice []st
 	if info.isPointer && str == nilDefault {
 		info.field.SetZero()
 		return nil
+	}
+	if info.useParser {
+		if str == nilDefault {
+			info.field.Set(reflect.Zero(info.fieldType))
+			return nil
+		}
+		if parser, ok := cr.options.Parsers[info.keyName]; ok {
+			intfc, err := parser(str)
+			if err != nil {
+				return err
+			}
+			info.field.Set(reflect.ValueOf(intfc))
+			return nil
+		} else {
+			return errors.New("parser not found for key " + info.keyName)
+		}
 	}
 
 	switch info.fieldType.Kind() {
@@ -1090,7 +1105,6 @@ func (cr *configReader) setTimeFieldValue(info structInfo, str string, strSlice 
 				} else if err != nil {
 					return getValueIsNotTypeError(info.fieldName, index, timeName)
 				}
-				log.Println(t)
 				if info.isPointer {
 					info.field.Index(index).Set(reflect.ValueOf(&t))
 				} else {
@@ -1199,21 +1213,6 @@ func (cr *configReader) setDurationFieldValue(info structInfo, str string, strSl
 func (cr *configReader) setStructFieldValue(info structInfo, str string, strSlice []string, strMap map[string]string, vType valueType) error {
 	if info.fieldType.String() == "time.Time" {
 		return cr.setTimeFieldValue(info, str, strSlice, strMap, vType)
-	} else if info.useParser {
-		if str == nilDefault {
-			info.field.Set(reflect.Zero(info.fieldType))
-			return nil
-		}
-		if parser, ok := cr.options.Parsers[info.keyName]; ok {
-			intfc, err := parser(str)
-			if err != nil {
-				return err
-			}
-			info.field.Set(reflect.ValueOf(intfc))
-			return nil
-		} else {
-			return errors.New("parser not found for key " + info.keyName)
-		}
 	} else {
 		return errors.New("unsupported type " + info.fieldType.String())
 	}

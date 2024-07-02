@@ -14,28 +14,28 @@ type Config struct {
     Fiend_6 string             `env:"GOPATH"`
     Fiend_7 *float64           `env:"-"`
     Field_8 []*int8            `env:"f8" def:"*nil,1,2,3,4,5"`
-    FIell_9  [2]*float32       `env:"f9,required" def:"1.23"`
+    FIell_9 [2]*float32        `env:"f9,required" def:"1.23"`
 }
 type SubConfig struct {
     Field_1 *uint32            `env:"sf1" def:"*nil"`
 }
 
 func main() {
-	config := &Config{}
-	cr := goconf.NewConfigReader().
-		RewriteValues(true).
-		AddEnvironment().
-		AddFile(".env").
-		AddFile("config.ini").
-		AddString("f5.sf1 = 10", goconf.FtEnv, "config 1").
-		AddFile("config.json").
-		EnsureHasNoErrors()
-	err := cr.ReadConfig(config)
-	if err != nil {
-		panic(err)
-	}
+    config := &Config{}
+    cr := goconf.NewConfigReader().
+        RewriteValues(true).
+        AddEnvironment().
+        AddFile(".env").
+        AddFile("config.ini").
+        AddString("f5.sf1 = 10", goconf.FtEnv, "config 1").
+        AddFile("config.json").
+        EnsureHasNoErrors()
+    err := cr.ReadConfig(config)
+    if err != nil {
+        panic(err)
+    }
 
-	...
+    ...
 }
 ```
 
@@ -80,12 +80,12 @@ func main() {
     **Env options** (comma separated)
     * `required` - if set, value in any source or default value must be specified. If no any value was found returns error. Collection must contain at least one item.
     * `append` - for collections only. If set, you'll get all the values from all sources.
-    * `useparser` - if set, ignores inner struct fields, uses specified parser. For structures only.
+    * `useparser` - if set, uses specified parser (works for any type).
 + `def` - default value. Can be used for any field type but structure without `useparser` option.
 + `sep` - separator for collections. Default is `,`.
 + `sep2` - separator between key and value in maps. Default is `:`.
 
-Default built-in value, can be used in sources and `def` tag.  
+Default built-in values, can be used in sources and `def` tag.  
 + `*nil` - sets nil if it's possible for the field (pointer, slice, map, item of collection of pointers).
 + `now` - sets current time for `Time` field.
 
@@ -98,8 +98,8 @@ If you have `1,2,3` for the array field of 5 `[5]int` you'll get `[1,2,3,0,0]`, 
 
 ```Go
 type Config struct {
-    Field_1 SubConfig `env:"f1,useparser" def:"f1_1"`
-    Field_2 SubConfig `env:"f2,useparser" def:"f2_1"`
+    Field_1 SubConfig  `env:"f1,useparser" def:"f1_1"`
+    Field_2 SubConfig  `env:"f2,useparser" def:"f2_1"`
 }
 type SubConfig struct {
     Field_1 string
@@ -107,28 +107,28 @@ type SubConfig struct {
 }
 
 func main() {
-	config := &Config{}
-	cr := goconf.NewConfigReader().
-		WithParser("f1", ParseSubConfig).
-		WithParser("f2", ParseSubConfig).
-		AddString("f1 = f1_2", goconf.FtEnv, "config 1").
-		EnsureHasNoErrors()
-	err := cr.ReadConfig(config)
-	if err != nil {
-		panic(err)
-	}
+    config := &Config{}
+    cr := goconf.NewConfigReader().
+        WithParser("f1", ParseSubConfig).
+        WithParser("f2", ParseSubConfig).
+        AddString("f1 = f1_2", goconf.FtEnv, "config 1").
+        EnsureHasNoErrors()
+    err := cr.ReadConfig(config)
+    if err != nil {
+        panic(err)
+    }
 
-	...
+    ...
 }
 
 func ParseSubConfig(s string) (interface{}, error) {
-	split := strings.Split(s, "_")
-	i, err := strconv.Atoi(split[1])
-	if err != nil {
-		return nil, err
-	}
+    split := strings.Split(s, "_")
+    i, err := strconv.Atoi(split[1])
+    if err != nil {
+        return nil, err
+    }
 
-	return SubConfig{Field_1: split[0], Field_2: i}, nil
+    return SubConfig{Field_1: split[0], Field_2: i}, nil
 }
 ```
 
